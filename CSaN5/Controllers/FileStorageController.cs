@@ -98,18 +98,51 @@ namespace CSaN5.Controllers
         }
 
         [HttpPut("{*filename}")]
-        public ActionResult PutFile(IFormFileCollection uploads, string filename)
+        public ActionResult Put(IFormFileCollection uploads, string filename)
         {
-            if (uploads.Count == 1)
+            string fromcopy = Request.Form.FirstOrDefault(p => p.Key == "fromcopy").Value;
+            if ((uploads.Count == 1)&&(fromcopy == null))                                   // либо перезаписываем один файл
             {
-                string path = uploads[0].FileName;
+                return TryToPut(uploads, filename);
+            }
+            else if ((fromcopy != null)&&(uploads.Count != 1))                              // либо копируем один файл
+            {
+                return TryToCopy(filename, fromcopy);
+            }
+            else
+                return BadRequest();
+        }
+
+        private ActionResult TryToPut(IFormFileCollection uploads, string filename)
+        {
+            string path = uploads[0].FileName;
+            try
+            {
+                using (var fileStream = new FileStream(root + @"/" + filename, FileMode.Create))
+                {
+                    uploads[0].CopyTo(fileStream);
+                }
+                return Ok("Перезаписано!");
+            }
+            catch { return NotFound(); }
+        }
+
+        private ActionResult TryToCopy(string filename, string fromcopy)
+        {
+            if (isFile(fromcopy) && (isFile(filename)))
+            {
                 try
                 {
+                    string fullpath = root + @"\" + fromcopy;
                     using (var fileStream = new FileStream(root + @"/" + filename, FileMode.Create))
                     {
-                        uploads[0].CopyTo(fileStream);
+                        using (var fromCopyStream = new FileStream(root + @"/" + fromcopy, FileMode.Open))
+                        {
+                            fromCopyStream.CopyTo(fileStream);
+                        }
                     }
-                    return Ok("Перезаписано!");
+                    return Ok("Скопировано!!");
+
                 }
                 catch { return NotFound(); }
             }
@@ -117,9 +150,5 @@ namespace CSaN5.Controllers
                 return BadRequest();
         }
 
-        public ActionResult Copy(string filename)
-        {
-            return Ok("Скопировано!");
-        }
     }
 }
