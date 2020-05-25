@@ -21,7 +21,6 @@ namespace CSaN5.Controllers
     {
         private readonly ILogger<FileStorageController> _logger;
         private string root = @"D:\Files";
-        private static IEnumerable<string> copy = new List<string> { "COPY" };
 
         public FileStorageController(ILogger<FileStorageController> logger)
         {
