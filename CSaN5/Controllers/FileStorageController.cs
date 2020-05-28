@@ -80,7 +80,8 @@ namespace CSaN5.Controllers
             try
             {
                 string fileInfo = Microsoft.VisualBasic.FileIO.FileSystem.GetFileInfo(root + @"\" + filename).ToString();
-                return new JsonResult(fileInfo);
+                Response.Headers.Append("Full name", fileInfo);
+                return Ok();
             }
             catch { return NotFound(); }
         }
@@ -90,7 +91,14 @@ namespace CSaN5.Controllers
         {
             try
             {
-                Microsoft.VisualBasic.FileIO.FileSystem.DeleteFile(root + @"\" + filename);
+                if (isFile(filename))
+                {
+                    Microsoft.VisualBasic.FileIO.FileSystem.DeleteFile(root + @"\" + filename);
+                }
+                else
+                {
+                    Microsoft.VisualBasic.FileIO.FileSystem.DeleteDirectory(root + @"\" + filename,DeleteDirectoryOption.DeleteAllContents);
+                }
                 return Ok("Удалено!");
             }
             catch { return NotFound(); }
