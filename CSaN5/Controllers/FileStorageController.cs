@@ -80,7 +80,7 @@ namespace CSaN5.Controllers
             try
             {
                 string fileInfo = Microsoft.VisualBasic.FileIO.FileSystem.GetFileInfo(root + @"\" + filename).ToString();
-                Response.Headers.Append("Full name", fileInfo);
+                Response.Headers.Add("FullName", fileInfo);
                 return Ok();
             }
             catch { return NotFound(); }
